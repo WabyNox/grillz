@@ -6,4 +6,3 @@ grillz::cmd_new() {
   printf "# %s\n%s\n\n" "$1" "$2" >> "$file"
   printf "✅ New recipe added to %s\n" "$file" >&2
 }
-}
