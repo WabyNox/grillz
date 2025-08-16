@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Resolve project root following symlinks
+SELF="${BASH_SOURCE[0]}"
+while [ -L "$SELF" ]; do
+  T="$(readlink "$SELF")"
+  if [[ "$T" != /* ]]; then
+    SELF="$(cd -P "$(dirname "$SELF")" && pwd)/$T"
+  else
+    SELF="$T"
+  fi
+done
+ROOT="$(cd -P "$(dirname "$SELF")/.." && pwd)"
+
+# Installation prefix (can be overridden)
+: "${PREFIX:=$HOME/.local}"
+
+# Candidate lib directories (in order)
+LIBDIRS=(
+  "$ROOT/lib/grillz"
+  "$HOME/.local/lib/grillz"
+  "/usr/local/lib/grillz"
+  "/opt/grillz/lib/grillz"
+)
+
+# Pick the first dir that looks like a grillz lib
+LIB=""
+for d in "${LIBDIRS[@]}"; do
+  if [[ -d "$d" && -f "$d/core.sh" ]]; then
+    LIB="$d"
+    break
+  fi
+done
+
+if [[ -z "$LIB" ]]; then
+  printf 'grillz: cannot find lib/ (looked in:\n' >&2
+  for d in "${LIBDIRS[@]}"; do printf '  - %s\n' "$d" >&2; done
+  printf ')\n' >&2
+  exit 1
+fi
+
+# Source order MATTERS
+#   version → config → ui → cheats → cmds/* → core
+#   (core uses the symbols above)
+# shellcheck source=/dev/null
+source "$LIB/version.sh"
+# shellcheck source=/dev/null
+source "$LIB/config.sh"
+# shellcheck source=/dev/null
+source "$LIB/ui.sh"
+# shellcheck source=/dev/null
+source "$LIB/cheats.sh"
+
+# shellcheck source=/dev/null
+source "$LIB/cmds/admin.sh"
+# shellcheck source=/dev/null
+source "$LIB/cmds/new.sh"
+# shellcheck source=/dev/null
+source "$LIB/cmds/list.sh"
+# shellcheck source=/dev/null
+source "$LIB/cmds/edit.sh"
+
+# shellcheck source=/dev/null
+source "$LIB/core.sh"
+
+grillz::main "$@"

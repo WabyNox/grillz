@@ -1,0 +1,14 @@
+# editors
+.*.swp
+*.swp
+*.swo
+.idea/
+.vscode/
+.DS_Store
+
+# local installs / build artifacts
+dist/
+*.tar.gz
+
+# user cache (never commit)
+*.log

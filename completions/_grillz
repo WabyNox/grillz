@@ -1,0 +1,37 @@
+#compdef grillz
+
+local -a subs
+subs=( recipes drinks new list edit install uninstall link unlink paths doctor )
+
+_arguments -s \
+  '(-h --help)'{-h,--help}'[show help]' \
+  '(-V --version)'{-V,--version}'[show version]' \
+  '(-r --run)'{-r,--run}'[execute final command (default)]' \
+  '(-p --print)'{-p,--print}'[print final command only]' \
+  '(-q --quiet)'{-q,--quiet}'[minimal prompts (no banner)]' \
+  '(-R --recipes)'{-R,--recipes}'[jump directly to Recipes mode]' \
+  '(-D --drinks)'{-D,--drinks}'[jump directly to Drinks mode]' \
+  '1:subcommand:->sub' \
+  '*::arg:->args'
+
+case $state in
+  sub)
+    _describe -t commands 'grillz commands' subs
+    return
+    ;;
+  args)
+    case $words[2] in
+      edit)
+        local pantry files
+        pantry=${GRILLZ_PANTRY_DEFAULT:-$HOME/.config/grillz/recipes}
+        if [[ -d $pantry ]]; then
+          files=(${(f)"$(command find "$pantry" -type f -name '*.md' 2>/dev/null)"})
+          files=("${files[@]//$pantry\//}")
+          compadd -a files
+        fi
+        ;;
+      *)
+        ;;
+    esac
+    ;;
+esac

